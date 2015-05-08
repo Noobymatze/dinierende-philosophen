@@ -30,14 +30,26 @@ public class Philosoph implements Runnable {
     public void run() {
         while(true) {
             this.think();
+
             System.out.println("Take left...");
-            // Hier wird ein Deadlock generiert.
-            synchronized(left) {
-                System.out.println("Take right...");
-                this.think();
-                synchronized(right) {
-                    this.eat();
-                }
+            left.take();
+
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ex) {
+                Logger.getLogger(Philosoph.class.getName()).log(Level.SEVERE, null, ex);
+            }
+
+            System.out.println("Take right...");
+            if (right.isTaken()) {
+                left.put();
+            }
+            else {
+                right.take();
+
+                this.eat();
+                this.right.put();
+                this.left.put();
             }
         }
     }
